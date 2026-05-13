@@ -1,0 +1,527 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>CPA — Painel de Participação | UniCatólica</title>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@2.44.0/tabler-icons.min.css">
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    :root {
+      --bg1: #ffffff; --bg2: #f4f4f2; --bg3: #eeecea;
+      --tx1: #1a1a18; --tx2: #5f5e5a;
+      --bd1: rgba(0,0,0,0.13); --bd2: rgba(0,0,0,0.28);
+      --rmd: 8px; --rlg: 12px;
+      --font: system-ui, -apple-system, sans-serif;
+    }
+    @media (prefers-color-scheme: dark) {
+      :root {
+        --bg1: #1e1e1c; --bg2: #2a2a28; --bg3: #111110;
+        --tx1: #f0ede8; --tx2: #a0a09a;
+        --bd1: rgba(255,255,255,0.12); --bd2: rgba(255,255,255,0.26);
+      }
+    }
+    body { font-family: var(--font); background: var(--bg3); color: var(--tx1); min-height: 100vh; padding: 1.5rem; }
+    .wrap { max-width: 980px; margin: 0 auto; }
+    .sr-only { position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0,0,0,0); }
+
+    /* Header */
+    .hdr { background:#1a3a6b; border-radius:var(--rlg); padding:.9rem 1.4rem; display:flex; align-items:center; justify-content:space-between; margin-bottom:1rem; }
+    .hdr-title { color:#fff; font-size:15px; font-weight:500; }
+    .hdr-sub { color:#c8d8f4; font-size:11px; margin-top:2px; }
+    .badge { background:#c9a84c; color:#2a1a00; font-size:11px; font-weight:500; padding:4px 12px; border-radius:var(--rmd); }
+
+    /* Status */
+    .status-card { background:var(--bg1); border:0.5px solid var(--bd1); border-radius:var(--rlg); padding:.8rem 1.25rem; margin-bottom:1rem; display:flex; align-items:center; gap:10px; flex-wrap:wrap; }
+    .status-txt { font-size:12px; color:var(--tx2); flex:1; }
+    .btn-reload { background:#1a3a6b; color:#fff; border:none; border-radius:var(--rmd); padding:6px 16px; font-size:12px; cursor:pointer; display:flex; align-items:center; gap:6px; }
+    .btn-reload:hover { background:#12295a; }
+    .spin { display:inline-block; animation:spin 1s linear infinite; }
+    @keyframes spin { to { transform:rotate(360deg); } }
+
+    /* Meta inputs */
+    .meta-section { background:var(--bg1); border:0.5px solid var(--bd1); border-radius:var(--rlg); padding:.9rem 1.25rem; margin-bottom:1rem; }
+    .meta-title { font-size:13px; font-weight:500; color:var(--tx1); margin-bottom:.6rem; display:flex; align-items:center; gap:6px; }
+    .meta-grid { display:grid; grid-template-columns:repeat(auto-fit,minmax(160px,1fr)); gap:10px; margin-bottom:.75rem; }
+    .meta-item label { font-size:11px; color:var(--tx2); display:block; margin-bottom:3px; }
+    .meta-item input { width:100%; font-size:12px; padding:5px 8px; border:0.5px solid var(--bd2); border-radius:var(--rmd); background:var(--bg1); color:var(--tx1); }
+    .meta-item input[readonly] { opacity:.55; cursor:not-allowed; }
+    .btn-save { background:transparent; border:0.5px solid var(--bd2); border-radius:var(--rmd); padding:6px 16px; font-size:12px; cursor:pointer; color:var(--tx1); }
+    .btn-save:hover { background:var(--bg2); }
+
+    /* Gauges */
+    .gauges { display:grid; grid-template-columns:repeat(auto-fit,minmax(200px,1fr)); gap:12px; margin-bottom:1rem; }
+    .g-card { background:var(--bg1); border:0.5px solid var(--bd1); border-radius:var(--rlg); padding:.9rem; display:flex; flex-direction:column; align-items:center; gap:6px; }
+    .g-label { font-size:13px; font-weight:500; color:var(--tx1); text-align:center; }
+    .g-filter { width:100%; }
+    .g-filter select { width:100%; font-size:12px; padding:4px 6px; border:0.5px solid var(--bd2); border-radius:var(--rmd); background:var(--bg1); color:var(--tx1); }
+    .g-wrap { position:relative; width:180px; height:106px; }
+    .g-center { position:absolute; bottom:0; left:0; right:0; text-align:center; }
+    .g-pct { font-size:23px; font-weight:500; color:var(--tx1); }
+    .g-sub { font-size:11px; color:var(--tx2); }
+    .g-counts { font-size:12px; color:var(--tx2); text-align:center; }
+    .g-goal { font-size:11px; color:#b87e00; font-weight:500; }
+
+    /* Tabs */
+    .tabs-card { background:var(--bg1); border:0.5px solid var(--bd1); border-radius:var(--rlg); padding:1rem 1.25rem; }
+    .tabs { display:flex; gap:4px; border-bottom:0.5px solid var(--bd1); margin-bottom:.85rem; }
+    .tab { font-size:13px; padding:7px 14px; cursor:pointer; color:var(--tx2); border:none; border-bottom:2px solid transparent; margin-bottom:-0.5px; background:none; }
+    .tab.active { color:#1a3a6b; border-bottom:2px solid #1a3a6b; font-weight:500; }
+    .panel { display:none; }
+    .panel.active { display:block; }
+
+    /* Table */
+    .t-wrap { overflow-x:auto; }
+    table { width:100%; border-collapse:collapse; font-size:13px; }
+    th { text-align:left; padding:7px 10px; background:var(--bg2); color:var(--tx2); font-weight:500; border-bottom:0.5px solid var(--bd1); }
+    td { padding:7px 10px; border-bottom:0.5px solid var(--bd1); color:var(--tx1); }
+    tr:last-child td { border-bottom:none; }
+    .pill { display:inline-block; padding:3px 10px; border-radius:99px; font-size:11px; font-weight:500; }
+    .p-green { background:#eaf3de; color:#27500a; }
+    .p-amber { background:#faeeda; color:#633806; }
+    .p-red { background:#fcebeb; color:#501313; }
+    .p-gray { background:var(--bg2); color:var(--tx2); }
+
+    /* Chart */
+    .legend-row { display:flex; flex-wrap:wrap; gap:10px; margin-bottom:8px; }
+    .l-item { display:flex; align-items:center; gap:4px; font-size:12px; color:var(--tx2); }
+    .l-dot { width:10px; height:10px; border-radius:2px; flex-shrink:0; }
+    .chart-wrap { position:relative; width:100%; }
+
+    .snap-info { font-size:11px; color:var(--tx2); margin-top:.5rem; }
+    .empty-msg { text-align:center; padding:1.5rem 0; color:var(--tx2); }
+  </style>
+</head>
+<body>
+<div class="wrap">
+  <h1 class="sr-only">Painel CPA UniCatólica — Participação na Autoavaliação Institucional</h1>
+
+  <div class="hdr">
+    <div>
+      <div class="hdr-title"><i class="ti ti-chart-line" aria-hidden="true"></i> CPA — Autoavaliação Institucional</div>
+      <div class="hdr-sub">Centro Universitário Católica do Tocantins &nbsp;|&nbsp; Ciclo 2026</div>
+    </div>
+    <span class="badge">Painel de Participação</span>
+  </div>
+
+  <div class="status-card">
+    <i class="ti ti-database" aria-hidden="true" style="font-size:18px;color:#1a3a6b;flex-shrink:0;"></i>
+    <span class="status-txt" id="statusTxt">Carregando dados...</span>
+    <button class="btn-reload" onclick="loadAll()">
+      <i class="ti ti-refresh" id="reloadIcon" aria-hidden="true"></i> Atualizar
+    </button>
+  </div>
+
+  <div class="gauges">
+    <div class="g-card">
+      <div class="g-label"><i class="ti ti-building" aria-hidden="true"></i> Administrativos</div>
+      <div class="g-wrap"><canvas id="gAdmin" width="180" height="106" role="img" aria-label="Velocímetro administrativos"></canvas>
+        <div class="g-center"><div class="g-pct" id="pAdmin">—</div><div class="g-sub">participação</div></div></div>
+      <div class="g-counts" id="cAdmin">— de — respondentes</div>
+      <div class="g-goal" id="goAdmin">Meta: informar acima</div>
+    </div>
+    <div class="g-card">
+      <div class="g-label"><i class="ti ti-school" aria-hidden="true"></i> Docentes</div>
+      <div class="g-filter"><select id="selDocente" onchange="filterGauge('Docente')"><option value="">Todos os cursos</option></select></div>
+      <div class="g-wrap"><canvas id="gDocente" width="180" height="106" role="img" aria-label="Velocímetro docentes"></canvas>
+        <div class="g-center"><div class="g-pct" id="pDocente">—</div><div class="g-sub">participação</div></div></div>
+      <div class="g-counts" id="cDocente">— de — respondentes</div>
+      <div class="g-goal" id="goDocente">Meta: informar acima</div>
+    </div>
+    <div class="g-card">
+      <div class="g-label"><i class="ti ti-users" aria-hidden="true"></i> Discentes</div>
+      <div class="g-filter"><select id="selDiscente" onchange="filterGauge('Discente')"><option value="">Todos os cursos</option></select></div>
+      <div class="g-wrap"><canvas id="gDiscente" width="180" height="106" role="img" aria-label="Velocímetro discentes"></canvas>
+        <div class="g-center"><div class="g-pct" id="pDiscente">—</div><div class="g-sub">participação</div></div></div>
+      <div class="g-counts" id="cDiscente">— de — respondentes</div>
+      <div class="g-goal" id="goDiscente">Meta: informar acima</div>
+    </div>
+  </div>
+
+  <div class="tabs-card">
+    <div class="tabs">
+      <button class="tab active" onclick="switchTab('tResumo',this)">Resumo geral</button>
+      <button class="tab" onclick="switchTab('tDocCurso',this)">Docentes por curso</button>
+      <button class="tab" onclick="switchTab('tDisCurso',this)">Discentes por curso</button>
+      <button class="tab" onclick="switchTab('tEvolDoc',this)">Evolução docentes</button>
+      <button class="tab" onclick="switchTab('tEvolDis',this)">Evolução discentes</button>
+    </div>
+
+    <div id="tResumo" class="panel active">
+      <div class="t-wrap"><table>
+        <thead><tr><th>Grupo</th><th>Respondentes</th><th>Total esperado</th><th>% atual</th><th>Meta</th><th>Status</th></tr></thead>
+        <tbody id="bResumo"><tr><td colspan="6" class="empty-msg">Carregando...</td></tr></tbody>
+      </table></div>
+      <div class="snap-info" id="snapInfo"></div>
+    </div>
+
+    <div id="tDocCurso" class="panel">
+      <div class="t-wrap"><table>
+        <thead><tr><th>Curso</th><th>Respondentes únicos</th></tr></thead>
+        <tbody id="bDocCurso"><tr><td colspan="2" class="empty-msg">Sem dados.</td></tr></tbody>
+      </table></div>
+    </div>
+
+    <div id="tDisCurso" class="panel">
+      <div class="t-wrap"><table>
+        <thead><tr><th>Curso</th><th>Respondentes</th><th>Matriculados</th><th>%</th></tr></thead>
+        <tbody id="bDisCurso"><tr><td colspan="4" class="empty-msg">Sem dados.</td></tr></tbody>
+      </table></div>
+    </div>
+
+    <div id="tEvolDoc" class="panel">
+      <div class="legend-row" id="legDoc"></div>
+      <div class="chart-wrap" style="height:300px;"><canvas id="chDoc" role="img" aria-label="Evolução participação docentes por curso"></canvas></div>
+    </div>
+
+    <div id="tEvolDis" class="panel">
+      <div class="legend-row" id="legDis"></div>
+      <div class="chart-wrap" style="height:300px;"><canvas id="chDis" role="img" aria-label="Evolução participação discentes por curso"></canvas></div>
+    </div>
+  </div>
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.4.1/papaparse.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js"></script>
+<script>
+// ── Constantes ────────────────────────────────────────────────
+const COLORS = ['#1a3a6b','#c9a84c','#1a7a3a','#c0392b','#7b2d8b','#0e7c91','#d35400','#16a085','#8e44ad','#2980b9','#f39c12','#2c3e50'];
+const MAT = {
+  'Administração':88,'Agronomia':160,'Arquitetura e Urbanismo':144,
+  'Biomedicina':67,'Ciências Contábeis':96,'Direito':740,
+  'Enfermagem':226,'Engenharia Civil':28,'Engenharia de Software':183,
+  'Engenharia Elétrica':5,'Farmácia':32,'Inteligência Artificial':14,
+  'Medicina Veterinária':249,'Psicologia':282,'Terapia Ocupacional':61,'Zootecnia':15
+};
+const TOTAL_MAT = Object.values(MAT).reduce((a,b)=>a+b,0);
+const LS_SNAP = 'cpa_unic_snaps';
+
+// Universo e metas fixas (ciclo anterior 2025)
+const TOTAIS = { admin: 105, docente: 98, discente: 2390 };
+const METAS  = { admin: 82.4, docente: 91.5, discente: 52.0 };
+
+// ── Estado ────────────────────────────────────────────────────
+let snap = null;
+let snaps = [];
+let charts = {};
+
+// ── Init ──────────────────────────────────────────────────────
+window.addEventListener('DOMContentLoaded', () => {
+  loadSnapsLS();
+  drawGauge('Admin',0,0); drawGauge('Docente',0,0); drawGauge('Discente',0,0);
+  loadAll();
+});
+
+// ── LocalStorage: metas e snapshots ──────────────────────────
+function loadSnapsLS() {
+  try { snaps = JSON.parse(localStorage.getItem(LS_SNAP)) || []; } catch(e) { snaps = []; }
+}
+
+function saveSnapsLS() {
+  try { localStorage.setItem(LS_SNAP, JSON.stringify(snaps)); } catch(e) {}
+}
+
+// ── Carregar arquivos do repositório ─────────────────────────
+async function loadAll() {
+  setStatus('Carregando arquivos...', true);
+  const today = new Date().toISOString().slice(0,10);
+  const newSnap = { date: today, admin:0, docente:0, discente:0, docByCurso:{}, disByCurso:{} };
+  let loaded = 0;
+
+  const jobs = [
+    fetchFile('dados/administrativos.xlsx').then(r => {
+      if (!r) return;
+      // Forms: cada linha = 1 respondente, conta todas as linhas com dados
+      newSnap.admin = r.data.length;
+      loaded++;
+    }),
+    fetchFile('dados/docente.csv').then(r => {
+      if (!r) return;
+      // col G (í 6) = AVALIADOR, col N (í 13) = RESPOSTA
+      // col CURSO: detecta automaticamente quando disponível no relatório
+      const cursoIdx = r.fields.findIndex(f => f.trim().toUpperCase() === 'CURSO');
+      const {filtered, idCol, cursoCol} = processReport(r, 6, cursoIdx >= 0 ? cursoIdx : null, 13);
+      newSnap.docente = countUniq(filtered, idCol);
+      newSnap.docByCurso = cursoCol ? groupByCurso(filtered, idCol, cursoCol) : {};
+      loaded++;
+    }),
+    fetchFile('dados/discente.csv').then(r => {
+      if (!r) return;
+      // col I (í 8) = AVALIADOR, col K (í 10) = CURSO, col R (í 17) = RESPOSTA
+      const {filtered, idCol, cursoCol} = processReport(r, 8, 10, 17);
+      newSnap.discente = countUniq(filtered, idCol);
+      newSnap.disByCurso = cursoCol ? groupByCurso(filtered, idCol, cursoCol) : {};
+      loaded++;
+    }),
+  ];
+
+  await Promise.allSettled(jobs);
+
+  if (loaded === 0) {
+    setStatus('Nenhum arquivo encontrado em /dados/. Verifique o repositório.', false);
+    return;
+  }
+
+  // salva/atualiza snapshot do dia
+  const idx = snaps.findIndex(s => s.date === today);
+  if (idx >= 0) snaps[idx] = newSnap; else snaps.push(newSnap);
+  snaps.sort((a,b) => a.date.localeCompare(b.date));
+  saveSnapsLS();
+  snap = newSnap;
+
+  rebuildAll();
+  const d = new Date().toLocaleString('pt-BR');
+  setStatus(`Dados atualizados em ${d} — ${loaded} arquivo(s) carregado(s).`, false);
+}
+
+// ── Fetch helpers ─────────────────────────────────────────────
+async function fetchCSV(path) {
+  try {
+    const res = await fetch(path);
+    if (!res.ok) return null;
+    const txt = await res.text();
+    const enc = detectMojibake(txt) ? await refetchLatin(path) : txt;
+    const p = Papa.parse(enc, { header:true, skipEmptyLines:true });
+    return { data: p.data, fields: p.meta.fields || [] };
+  } catch(e) { return null; }
+}
+
+async function refetchLatin(path) {
+  const res = await fetch(path);
+  const buf = await res.arrayBuffer();
+  return new TextDecoder('windows-1252').decode(buf);
+}
+
+function detectMojibake(txt) {
+  return /\uFFFD|[\xC3][\x80-\xBF]/.test(txt.slice(0,500));
+}
+
+async function fetchFile(path) {
+  // tenta CSV direto
+  const r = await fetchCSV(path);
+  if (r) return r;
+  // tenta XLS/XLSX variante
+  for (const ext of ['.xlsx','.xls']) {
+    try {
+      const res = await fetch(path.replace('.csv', ext));
+      if (!res.ok) continue;
+      const buf = await res.arrayBuffer();
+      const wb = XLSX.read(buf, { type:'array', codepage:1252 });
+      const ws = wb.Sheets[wb.SheetNames[0]];
+      const rows = XLSX.utils.sheet_to_json(ws, { header:1, defval:'' });
+      const fields = (rows[0]||[]).map((h,i) => h ? String(h).trim() : 'col'+i);
+      const data = rows.slice(1).map(r => {
+        const o={}; fields.forEach((f,i)=>o[f]=r[i]!=null?String(r[i]).trim():''); return o;
+      }).filter(r=>Object.values(r).some(v=>v));
+      return { data, fields };
+    } catch(e) {}
+  }
+  return null;
+}
+
+// ── Processamento de relatórios ───────────────────────────────
+function processReport(r, idIdx, cursoIdx, flagIdx) {
+  const fields = r.fields;
+  const idCol    = fields[idIdx]    || fields[0];
+  const cursoCol = cursoIdx != null ? (fields[cursoIdx] || null) : null;
+  const flagCol  = fields[flagIdx]  || null;
+  const filtered = flagCol
+    ? r.data.filter(row => isRespondeu(row[flagCol]))
+    : r.data;
+  return { filtered, idCol, cursoCol };
+}
+
+function isRespondeu(val) {
+  if (val == null) return false;
+  const v = String(val).trim().toLowerCase()
+    .normalize('NFD').replace(/[\u0300-\u036f]/g, '');
+  // exclui quem está "em aberto", conta todo o resto
+  return v !== '' && !v.includes('aberto');
+}
+
+function countUniq(rows, col) {
+  const s = new Set();
+  rows.forEach(r => { const v=String(r[col]||'').trim(); if(v) s.add(v); });
+  return s.size;
+}
+
+function groupByCurso(rows, idCol, cursoCol) {
+  const map = {};
+  rows.forEach(r => {
+    const id = String(r[idCol]||'').trim();
+    const curso = String(r[cursoCol]||'').trim();
+    if (!id||!curso) return;
+    if (!map[curso]) map[curso] = new Set();
+    map[curso].add(id);
+  });
+  const out = {};
+  Object.entries(map).forEach(([c,s]) => out[c] = s.size);
+  return out;
+}
+
+// ── Rebuild UI ────────────────────────────────────────────────
+function rebuildAll() {
+  if (!snap) return;
+  updateGauge('Admin',   snap.admin,    TOTAIS.admin,   METAS.admin);
+  updateGauge('Docente', snap.docente,  TOTAIS.docente, METAS.docente);
+  updateGauge('Discente',snap.discente, TOTAIS.discente,METAS.discente);
+
+  fillFilter('selDocente',  Object.keys(snap.docByCurso).sort());
+  fillFilter('selDiscente', Object.keys(snap.disByCurso).sort());
+
+  buildResumo();
+  buildDocCurso();
+  buildDisCurso();
+  buildEvolChart('Doc', 'docByCurso', 'legDoc', 'chDoc');
+  buildEvolChart('Dis', 'disByCurso', 'legDis', 'chDis');
+
+  document.getElementById('snapInfo').textContent =
+    snaps.length > 0 ? 'Histórico: ' + snaps.map(s=>s.date).join(' · ') : '';
+}
+
+// ── Gauge ─────────────────────────────────────────────────────
+function drawGauge(id, pct, meta) {
+  const c = document.getElementById('g'+id);
+  if (!c) return;
+  const ctx=c.getContext('2d'), W=c.width, H=c.height, cx=W/2, cy=H-10, r=76;
+  ctx.clearRect(0,0,W,H);
+  const dark = matchMedia('(prefers-color-scheme:dark)').matches;
+  const arc=(from,to,color,lw)=>{ctx.beginPath();ctx.arc(cx,cy,r,from,to);ctx.strokeStyle=color;ctx.lineWidth=lw;ctx.lineCap='round';ctx.stroke();};
+  arc(Math.PI,0, dark?'#2a3550':'#e8edf5', 13);
+  if(meta>0){const mA=Math.PI+(meta/100)*Math.PI;arc(Math.PI,mA,'#c9a84c55',13);}
+  if(pct>0){const p=Math.min(pct,100)/100;const fA=Math.PI+p*Math.PI;const fc=pct>=(meta||101)?'#1a7a3a':pct>=(meta||101)*.75?'#c9a84c':'#c0392b';arc(Math.PI,fA,fc,13);}
+  if(meta>0){const mA=Math.PI+(meta/100)*Math.PI;ctx.beginPath();ctx.moveTo(cx+(r-8)*Math.cos(mA),cy+(r-8)*Math.sin(mA));ctx.lineTo(cx+(r+2)*Math.cos(mA),cy+(r+2)*Math.sin(mA));ctx.strokeStyle='#c9a84c';ctx.lineWidth=2;ctx.stroke();}
+  ctx.font='9px sans-serif';ctx.fillStyle=dark?'#a0aabf':'#888';
+  ctx.textAlign='left';ctx.fillText('0%',cx-r-2,cy+11);ctx.textAlign='right';ctx.fillText('100%',cx+r+2,cy+11);
+}
+
+function updateGauge(id, resp, total, meta) {
+  const pct = total>0?(resp/total)*100:0;
+  const pEl=document.getElementById('p'+id);
+  const cEl=document.getElementById('c'+id);
+  const gEl=document.getElementById('go'+id);
+  pEl.textContent = total>0?pct.toFixed(1)+'%':'—';
+  pEl.style.color = total>0?(pct>=meta&&meta>0?'#1a7a3a':pct>=(meta||0)*.75&&meta>0?'#b87e00':'#c0392b'):'var(--tx1)';
+  cEl.textContent = (resp>0||total>0)?(resp+' de '+(total||'?')+' respondentes'):'— de — respondentes';
+  gEl.textContent = meta>0?'Meta: superar '+meta.toFixed(1)+'% (ciclo ant.)':'Meta: informar acima';
+  drawGauge(id, pct, meta);
+}
+
+function filterGauge(tipo) {
+  if (!snap) return;
+  const curso = document.getElementById('sel'+tipo).value;
+  if (tipo==='Docente') {
+    const resp = curso?(snap.docByCurso[curso]||0):snap.docente;
+    updateGauge('Docente', resp, curso?0:TOTAIS.docente, curso?0:METAS.docente);
+    if (curso){document.getElementById('pDocente').textContent=resp+' resp.';document.getElementById('pDocente').style.color='var(--tx1)';}
+  } else {
+    const resp = curso?(snap.disByCurso[curso]||0):snap.discente;
+    const total = curso?(MAT[curso]||0):TOTAIS.discente;
+    updateGauge('Discente', resp, total, curso?0:METAS.discente);
+  }
+}
+
+function fillFilter(selId, cursos) {
+  const sel=document.getElementById(selId);
+  const prev=sel.value;
+  sel.innerHTML='<option value="">Todos os cursos</option>';
+  cursos.forEach(c=>{const o=document.createElement('option');o.value=c;o.textContent=c;sel.appendChild(o);});
+  if(prev) sel.value=prev;
+}
+
+// ── Tabelas ───────────────────────────────────────────────────
+function buildResumo() {
+  const rows=[
+    {g:'Administrativos', r:snap.admin,    t:TOTAIS.admin,   m:METAS.admin},
+    {g:'Docentes',        r:snap.docente,  t:TOTAIS.docente, m:METAS.docente},
+    {g:'Discentes',       r:snap.discente, t:TOTAIS.discente,m:METAS.discente},
+  ];
+  document.getElementById('bResumo').innerHTML=rows.map(x=>{
+    const pct=x.t>0?(x.r/x.t*100):null;
+    const ps=pct!=null?pct.toFixed(1)+'%':'—';
+    const ms=x.m>0?x.m.toFixed(1)+'%':'—';
+    let pill='<span class="pill p-gray">Sem meta</span>';
+    if(pct!=null&&x.m>0){
+      if(pct>=x.m) pill='<span class="pill p-green">Meta atingida</span>';
+      else if(pct>=x.m*.75) pill='<span class="pill p-amber">Em andamento</span>';
+      else pill='<span class="pill p-red">Abaixo da meta</span>';
+    } else if(pct==null) pill='<span class="pill p-gray">Sem dados</span>';
+    return `<tr><td>${x.g}</td><td>${x.r||'—'}</td><td>${x.t||'—'}</td><td>${ps}</td><td>${ms}</td><td>${pill}</td></tr>`;
+  }).join('');
+}
+
+function buildDocCurso() {
+  const keys=Object.keys(snap.docByCurso).sort();
+  document.getElementById('bDocCurso').innerHTML=keys.length===0
+    ?'<tr><td colspan="2" class="empty-msg">Sem dados de curso nos docentes.</td></tr>'
+    :keys.map(c=>`<tr><td>${c}</td><td>${snap.docByCurso[c]}</td></tr>`).join('');
+}
+
+function buildDisCurso() {
+  const keys=Object.keys(snap.disByCurso).sort();
+  document.getElementById('bDisCurso').innerHTML=keys.length===0
+    ?'<tr><td colspan="4" class="empty-msg">Sem dados.</td></tr>'
+    :keys.map(c=>{
+      const r=snap.disByCurso[c]||0;
+      const t=MAT[c]||0;
+      const pct=t>0?((r/t)*100).toFixed(1)+'%':'—';
+      return `<tr><td>${c}</td><td>${r}</td><td>${t||'—'}</td><td>${pct}</td></tr>`;
+    }).join('');
+}
+
+// ── Gráficos de evolução ──────────────────────────────────────
+function buildEvolChart(suf, snapKey, legId, canvasId) {
+  const labels = snaps.map(s=>s.date);
+  const allCursos = [...new Set(snaps.flatMap(s=>Object.keys(s[snapKey]||{})))].sort();
+
+  document.getElementById(legId).innerHTML = allCursos.length===0
+    ?'<span style="font-size:11px;color:var(--tx2);">Nenhum dado de curso ainda.</span>'
+    :allCursos.map((c,i)=>`<span class="l-item"><span class="l-dot" style="background:${COLORS[i%COLORS.length]};"></span>${c}</span>`).join('');
+
+  if(charts[suf]){charts[suf].destroy();charts[suf]=null;}
+  if(labels.length===0||allCursos.length===0) return;
+
+  const dark=matchMedia('(prefers-color-scheme:dark)').matches;
+  const gc=dark?'rgba(255,255,255,0.07)':'rgba(0,0,0,0.07)';
+  const tc=dark?'#a0aabf':'#888';
+
+  charts[suf]=new Chart(document.getElementById(canvasId),{
+    type:'line',
+    data:{
+      labels,
+      datasets:allCursos.map((c,i)=>({
+        label:c,
+        data:snaps.map(s=>(s[snapKey]||{})[c]||0),
+        borderColor:COLORS[i%COLORS.length],
+        backgroundColor:COLORS[i%COLORS.length]+'22',
+        borderWidth:2,pointRadius:4,tension:.3,fill:false
+      }))
+    },
+    options:{
+      responsive:true,maintainAspectRatio:false,
+      plugins:{legend:{display:false}},
+      scales:{
+        x:{grid:{color:gc},ticks:{color:tc,font:{size:10}},title:{display:true,text:'Data',color:tc,font:{size:10}}},
+        y:{grid:{color:gc},ticks:{color:tc,font:{size:10}},title:{display:true,text:'Respondentes únicos',color:tc,font:{size:10}},beginAtZero:true}
+      }
+    }
+  });
+}
+
+// ── Utils ─────────────────────────────────────────────────────
+function switchTab(id, btn) {
+  document.querySelectorAll('.panel').forEach(p=>p.classList.remove('active'));
+  document.querySelectorAll('.tab').forEach(t=>t.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+  btn.classList.add('active');
+}
+
+function setStatus(msg, loading) {
+  document.getElementById('statusTxt').textContent = msg;
+  const icon = document.getElementById('reloadIcon');
+  icon.className = loading ? 'spin' : 'ti ti-refresh';
+}
+</script>
+</body>
+</html>
