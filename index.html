@@ -90,6 +90,7 @@
     <i class="ti ti-database" style="font-size:18px;color:#1a3a6b;flex-shrink:0;"></i>
     <span class="status-txt" id="statusTxt">Carregando dados...</span>
     <button class="btn-reload" onclick="loadAll()"><i class="ti ti-refresh" id="reloadIcon"></i> Atualizar</button>
+    <button class="btn-reload" onclick="exportSnaps()" style="background:#1a5a3a;" title="Baixe e suba como dados/snaps.json no GitHub para compartilhar o histórico"><i class="ti ti-download"></i> Exportar histórico</button>
   </div>
 
   <div class="meta-section">
@@ -196,8 +197,24 @@ function getMetas() {
   };
 }
 
-window.addEventListener('DOMContentLoaded', () => {
+window.addEventListener('DOMContentLoaded', async () => {
+  // Carrega snaps do localStorage
   try { snaps = JSON.parse(localStorage.getItem(LS_SNAP)) || []; } catch(e) { snaps = []; }
+
+  // Tenta carregar histórico compartilhado do repositório e mescla
+  try {
+    const res = await fetch('dados/snaps.json?v=' + Date.now());
+    if (res.ok) {
+      const remoto = await res.json();
+      if (Array.isArray(remoto) && remoto.length) {
+        const datesLocal = new Set(snaps.map(s => s.date));
+        remoto.forEach(s => { if (!datesLocal.has(s.date)) snaps.push(s); });
+        snaps.sort((a,b) => a.date.localeCompare(b.date));
+        try { localStorage.setItem(LS_SNAP, JSON.stringify(snaps)); } catch(e) {}
+      }
+    }
+  } catch(e) {}
+
   drawGauge('Admin',0,0); drawGauge('Docente',0,0); drawGauge('Discente',0,0);
   loadAll();
 });
@@ -268,8 +285,9 @@ async function loadAll() {
   document.getElementById('reloadIcon').className = 'ti ti-loader-2';
   setStatus('Carregando arquivos...');
   const _d = new Date();
-  const today = `${_d.getFullYear()}-${String(_d.getMonth()+1).padStart(2,'0')}-${String(_d.getDate()).padStart(2,'0')}`;
-  const newSnap = { date:today, admin:0, docente:0, discente:0, docByCurso:{}, disByCurso:{} };
+  const pad = n => String(n).padStart(2,'0');
+  const now = `${_d.getFullYear()}-${pad(_d.getMonth()+1)}-${pad(_d.getDate())} ${pad(_d.getHours())}:${pad(_d.getMinutes())}`;
+  const newSnap = { date:now, admin:0, docente:0, discente:0, docByCurso:{}, disByCurso:{} };
   let loaded = 0, errors = [];
 
   const jobs = [
@@ -323,9 +341,10 @@ async function loadAll() {
     return;
   }
 
-  const idx = snaps.findIndex(s => s.date === today);
+  const idx = snaps.findIndex(s => s.date === now);
   if (idx >= 0) snaps[idx] = newSnap; else snaps.push(newSnap);
   snaps.sort((a,b) => a.date.localeCompare(b.date));
+  if (snaps.length > 200) snaps.splice(0, snaps.length - 200);
   try { localStorage.setItem(LS_SNAP, JSON.stringify(snaps)); } catch(e) {}
   snap = newSnap;
 
@@ -353,7 +372,7 @@ function rebuildAll() {
   buildDisCurso();
   buildEvolChart('Doc','docByCurso','legDoc','chDoc');
   buildEvolChart('Dis','disByCurso','legDis','chDis');
-  document.getElementById('snapInfo').textContent = snaps.length > 0 ? 'Histórico: ' + snaps.map(s=>s.date).join(' · ') : '';
+  document.getElementById('snapInfo').textContent = snaps.length > 0 ? `Histórico: ${snaps.length} carga(s) — ${snaps.map(s=>fmtSnapDate(s.date)).join(' · ')}` : '';
 }
 
 // ── Gauge ─────────────────────────────────────────────────────
@@ -443,8 +462,15 @@ function buildDisCurso() {
   }).join('');
 }
 
+function fmtSnapDate(d) {
+  // "2026-05-13 21:35" → "13/05 21:35"
+  const m = d.match(/(\d{4})-(\d{2})-(\d{2})(?: (\d{2}:\d{2}))?/);
+  if (!m) return d;
+  return m[4] ? `${m[3]}/${m[2]} ${m[4]}` : `${m[3]}/${m[2]}`;
+}
+
 function buildEvolChart(suf, snapKey, legId, canvasId) {
-  const labels=snaps.map(s=>s.date);
+  const labels=snaps.map(s=>fmtSnapDate(s.date));
   const allCursos=[...new Set(snaps.flatMap(s=>Object.keys(s[snapKey]||{})))].sort();
   document.getElementById(legId).innerHTML=allCursos.length===0
     ?'<span style="font-size:11px;color:var(--tx2);">Nenhum dado ainda.</span>'
@@ -466,6 +492,16 @@ function buildEvolChart(suf, snapKey, legId, canvasId) {
         y:{grid:{color:gc},ticks:{color:tc,font:{size:10}},title:{display:true,text:'Respondentes únicos',color:tc,font:{size:10}},beginAtZero:true}
       }}
   });
+}
+
+function exportSnaps() {
+  if (!snaps.length) { alert('Nenhum histórico para exportar.'); return; }
+  const blob = new Blob([JSON.stringify(snaps, null, 2)], { type: 'application/json' });
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = 'snaps.json';
+  a.click();
+  URL.revokeObjectURL(a.href);
 }
 
 function switchTab(id, btn) {
