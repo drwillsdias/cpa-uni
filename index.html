@@ -370,8 +370,8 @@ function rebuildAll() {
   buildResumo(m);
   buildDocCurso();
   buildDisCurso();
-  buildEvolChart('Doc','docByCurso','legDoc','chDoc');
-  buildEvolChart('Dis','disByCurso','legDis','chDis');
+  buildEvolChart('Doc','docByCurso','docTotalByCurso','legDoc','chDoc');
+  buildEvolChart('Dis','disByCurso',null,'legDis','chDis');
   document.getElementById('snapInfo').textContent = snaps.length > 0 ? `Histórico: ${snaps.length} carga(s) — ${snaps.map(s=>fmtSnapDate(s.date)).join(' · ')}` : '';
 }
 
@@ -477,7 +477,7 @@ function fmtSnapDate(d) {
   return m[4] ? `${m[3]}/${m[2]} ${m[4]}` : `${m[3]}/${m[2]}`;
 }
 
-function buildEvolChart(suf, snapKey, legId, canvasId) {
+function buildEvolChart(suf, snapKey, totalKey, legId, canvasId) {
   const labels=snaps.map(s=>fmtSnapDate(s.date));
   const allCursos=[...new Set(snaps.flatMap(s=>Object.keys(s[snapKey]||{})))].sort();
   document.getElementById(legId).innerHTML=allCursos.length===0
@@ -487,17 +487,26 @@ function buildEvolChart(suf, snapKey, legId, canvasId) {
   if(labels.length===0||allCursos.length===0) return;
   const dark=matchMedia('(prefers-color-scheme:dark)').matches;
   const gc=dark?'rgba(255,255,255,0.07)':'rgba(0,0,0,0.07)', tc=dark?'#a0aabf':'#888';
+  const getPct=(s,c)=>{
+    const resp=(s[snapKey]||{})[c]||0;
+    const total=totalKey?(s[totalKey]||{})[c]||0:MAT[c]||0;
+    return total>0?parseFloat(((resp/total)*100).toFixed(1)):0;
+  };
   charts[suf]=new Chart(document.getElementById(canvasId),{
     type:'line',
     data:{labels,datasets:allCursos.map((c,i)=>({
-      label:c, data:snaps.map(s=>(s[snapKey]||{})[c]||0),
+      label:c, data:snaps.map(s=>getPct(s,c)),
       borderColor:COLORS[i%COLORS.length], backgroundColor:COLORS[i%COLORS.length]+'22',
       borderWidth:2,pointRadius:4,tension:.3,fill:false
     }))},
-    options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},
+    options:{responsive:true,maintainAspectRatio:false,
+      plugins:{
+        legend:{display:false},
+        tooltip:{callbacks:{label:ctx=>`${ctx.dataset.label}: ${ctx.parsed.y.toFixed(1)}%`}}
+      },
       scales:{
         x:{grid:{color:gc},ticks:{color:tc,font:{size:10}},title:{display:true,text:'Data',color:tc,font:{size:10}}},
-        y:{grid:{color:gc},ticks:{color:tc,font:{size:10}},title:{display:true,text:'Respondentes únicos',color:tc,font:{size:10}},beginAtZero:true}
+        y:{grid:{color:gc},ticks:{color:tc,font:{size:10},callback:v=>v+'%'},title:{display:true,text:'Participação (%)',color:tc,font:{size:10}},beginAtZero:true,max:100}
       }}
   });
 }
