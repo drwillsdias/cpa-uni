@@ -443,7 +443,11 @@ function buildResumo(m) {
 }
 
 function buildDocCurso() {
-  const keys=Object.keys(snap.docByCurso).sort();
+  const keys=Object.keys(snap.docByCurso).sort((a,b)=>{
+    const ta=(snap.docTotalByCurso||{})[a]||0, tb=(snap.docTotalByCurso||{})[b]||0;
+    const pa=ta>0?(snap.docByCurso[a]||0)/ta:0, pb=tb>0?(snap.docByCurso[b]||0)/tb:0;
+    return pb-pa;
+  });
   document.getElementById('bDocCurso').innerHTML=keys.length===0
     ?'<tr><td colspan="4" class="empty-msg">Sem dados de curso (aguardando novo relatório).</td></tr>'
     :keys.map(c=>{
@@ -454,7 +458,11 @@ function buildDocCurso() {
 }
 
 function buildDisCurso() {
-  const allCursos = [...new Set([...Object.keys(MAT), ...Object.keys(snap.disByCurso)])].sort();
+  const allCursos = [...new Set([...Object.keys(MAT), ...Object.keys(snap.disByCurso)])].sort((a,b)=>{
+    const ta=MAT[a]||0, tb=MAT[b]||0;
+    const pa=ta>0?(snap.disByCurso[a]||0)/ta:0, pb=tb>0?(snap.disByCurso[b]||0)/tb:0;
+    return pb-pa;
+  });
   document.getElementById('bDisCurso').innerHTML=allCursos.map(c=>{
     const r=snap.disByCurso[c]||0, t=MAT[c]||0;
     const pct=t>0?((r/t)*100).toFixed(1)+'%':'—';
