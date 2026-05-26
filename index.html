@@ -177,6 +177,13 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js"></script>
 <script>
+// Detecta se está no GitHub Pages e usa raw.githubusercontent.com para evitar cache do CDN
+const _ghMatch = location.hostname.match(/^([^.]+)\.github\.io$/);
+const _ghRepo  = _ghMatch ? location.pathname.split('/').filter(Boolean)[0] : null;
+const DATA_BASE = (_ghMatch && _ghRepo)
+  ? `https://raw.githubusercontent.com/${_ghMatch[1]}/${_ghRepo}/main/`
+  : '';
+
 const COLORS = ['#1a3a6b','#c9a84c','#1a7a3a','#c0392b','#7b2d8b','#0e7c91','#d35400','#16a085','#8e44ad','#2980b9','#f39c12','#2c3e50'];
 const MAT = {
   'Administração':88,'Agronomia':160,'Arquitetura e Urbanismo':144,
@@ -203,7 +210,7 @@ window.addEventListener('DOMContentLoaded', async () => {
 
   // Tenta carregar histórico compartilhado do repositório e mescla
   try {
-    const res = await fetch('dados/snaps.json', { cache: 'no-store', headers: { 'Pragma': 'no-cache', 'Cache-Control': 'no-cache' } });
+    const res = await fetch(DATA_BASE + 'dados/snaps.json', { cache: 'no-store' });
     if (res.ok) {
       const remoto = await res.json();
       if (Array.isArray(remoto) && remoto.length) {
@@ -222,7 +229,7 @@ window.addEventListener('DOMContentLoaded', async () => {
 // ── Fetch ─────────────────────────────────────────────────────
 async function fetchFile(path) {
   try {
-    const res = await fetch(path, { cache: 'no-store', headers: { 'Pragma': 'no-cache', 'Cache-Control': 'no-cache' } });
+    const res = await fetch(DATA_BASE + path, { cache: 'no-store' });
     if (!res.ok) return null;
     const lastMod = res.headers.get('last-modified');
     if (lastMod) {
