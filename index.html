@@ -203,7 +203,7 @@ window.addEventListener('DOMContentLoaded', async () => {
 
   // Tenta carregar histórico compartilhado do repositório e mescla
   try {
-    const res = await fetch('dados/snaps.json?v=' + Date.now());
+    const res = await fetch('dados/snaps.json', { cache: 'no-store', headers: { 'Pragma': 'no-cache', 'Cache-Control': 'no-cache' } });
     if (res.ok) {
       const remoto = await res.json();
       if (Array.isArray(remoto) && remoto.length) {
@@ -222,8 +222,14 @@ window.addEventListener('DOMContentLoaded', async () => {
 // ── Fetch ─────────────────────────────────────────────────────
 async function fetchFile(path) {
   try {
-    const res = await fetch(path + '?v=' + Date.now()); // cache bust
+    const res = await fetch(path, { cache: 'no-store', headers: { 'Pragma': 'no-cache', 'Cache-Control': 'no-cache' } });
     if (!res.ok) return null;
+    const lastMod = res.headers.get('last-modified');
+    if (lastMod) {
+      const d = new Date(lastMod);
+      window._csvDates = window._csvDates || {};
+      window._csvDates[path] = d.toLocaleString('pt-BR');
+    }
     const ext = path.split('.').pop().toLowerCase();
     const buf = await res.arrayBuffer();
     if (ext === 'xlsx' || ext === 'xls') {
@@ -283,6 +289,7 @@ function groupByCurso(rows, idCol, cursoCol) {
 // ── Load ──────────────────────────────────────────────────────
 async function loadAll() {
   document.getElementById('reloadIcon').className = 'ti ti-loader-2';
+  window._csvDates = {};
   setStatus('Carregando arquivos...');
   const _d = new Date();
   const pad = n => String(n).padStart(2,'0');
@@ -350,7 +357,10 @@ async function loadAll() {
 
   rebuildAll();
   const info = errors.length ? ` (erro: ${errors.join(', ')})` : '';
-  setStatus(`Atualizado em ${new Date().toLocaleString('pt-BR')} — ${loaded} arquivo(s) carregado(s)${info}.`);
+  const dates = window._csvDates || {};
+  const docDate  = dates['dados/docente.csv']  ? ` · docente: ${dates['dados/docente.csv']}`   : '';
+  const disDate  = dates['dados/discente.csv'] ? ` · discente: ${dates['dados/discente.csv']}` : '';
+  setStatus(`Atualizado em ${new Date().toLocaleString('pt-BR')} — ${loaded} arquivo(s)${info}. Arquivos no servidor:${docDate}${disDate}`);
   document.getElementById('reloadIcon').className = 'ti ti-refresh';
 }
 
