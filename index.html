@@ -422,13 +422,13 @@ function filterGauge(tipo) {
   const m = getMetas();
   const curso = document.getElementById('sel'+tipo).value;
   if (tipo==='Docente') {
-    const resp = curso?(snap.docByCurso[curso]||0):snap.docente;
-    updateGauge('Docente', resp, curso?0:m.docente.total, curso?0:m.docente.meta);
-    if(curso){document.getElementById('pDocente').textContent=resp+' resp.';document.getElementById('pDocente').style.color='var(--tx1)';}
+    const resp  = curso ? (snap.docByCurso[curso]||0) : snap.docente;
+    const total = curso ? ((snap.docTotalByCurso||{})[curso]||0) : (snap.docenteTotal||m.docente.total);
+    updateGauge('Docente', resp, total, curso ? 0 : m.docente.meta);
   } else {
-    const resp = curso?(snap.disByCurso[curso]||0):snap.discente;
-    const total = curso?(MAT[curso]||0):m.discente.total;
-    updateGauge('Discente', resp, total, curso?0:m.discente.meta);
+    const resp  = curso ? (snap.disByCurso[curso]||0) : snap.discente;
+    const total = curso ? (MAT[curso]||0) : m.discente.total;
+    updateGauge('Discente', resp, total, curso ? 0 : m.discente.meta);
   }
 }
 
