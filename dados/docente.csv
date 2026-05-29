@@ -7,7 +7,6 @@ FILIAL;CODTIPOCURSO;CODPROVA;PROVA;CODAREA;CODMATERIA;AVALIADOR;CURSO;SEQOBJETOA
 2;12;00760;Avaliação Docente UniCatolica 2026.1;;;816530;Direito;;;NÃO RESPONDEU;0;Não Respondeu;EM ABERTO;
 2;12;00760;Avaliação Docente UniCatolica 2026.1;;;91215052;Engenharia de Software;;;NÃO RESPONDEU;0;Não Respondeu;EM ABERTO;
 2;12;00760;Avaliação Docente UniCatolica 2026.1;;;91309767;Direito;;;NÃO RESPONDEU;0;Não Respondeu;EM ABERTO;
-2;12;00760;Avaliação Docente UniCatolica 2026.1;;;91360608;Direito;;;NÃO RESPONDEU;0;Não Respondeu;EM ABERTO;
 2;12;00760;Avaliação Docente UniCatolica 2026.1;;;91558558;Medicina Veterinária;;;NÃO RESPONDEU;0;Não Respondeu;EM ABERTO;
 2;12;00760;Avaliação Docente UniCatolica 2026.1;;;91756007;Direito;;;NÃO RESPONDEU;0;Não Respondeu;EM ABERTO;
 2;12;00760;Avaliação Docente UniCatolica 2026.1;;;91756252;Direito;;;NÃO RESPONDEU;0;Não Respondeu;EM ABERTO;
@@ -601,6 +600,17 @@ FILIAL;CODTIPOCURSO;CODPROVA;PROVA;CODAREA;CODMATERIA;AVALIADOR;CURSO;SEQOBJETOA
 2;12;00760;Avaliação Docente UniCatolica 2026.1;218;1;91278136;Medicina Veterinária;52105;7;Coerência entre a Missão Institucional e atividades relacionadas à espiritualidade;A;Excelente;CONCLUIDO;
 2;12;00760;Avaliação Docente UniCatolica 2026.1;218;1;91278136;Medicina Veterinária;52105;8;Coerência entre a Missão Institucional e iniciativas efetivas de preservação ambiental;A;Excelente;CONCLUIDO;
 2;12;00760;Avaliação Docente UniCatolica 2026.1;218;1;91278136;Medicina Veterinária;52105;9;Divulgação e clareza dos editais (extensão e iniciação científica);A;Excelente;CONCLUIDO;
+2;12;00760;Avaliação Docente UniCatolica 2026.1;218;1;91360608;Direito;52105;1;Efetividade das melhorias decorrentes da autoavaliação institucional;A;Excelente;CONCLUIDO;
+2;12;00760;Avaliação Docente UniCatolica 2026.1;218;1;91360608;Direito;52105;10;Apoio institucional para execução dos planos de ensino;A;Excelente;CONCLUIDO;
+2;12;00760;Avaliação Docente UniCatolica 2026.1;218;1;91360608;Direito;52105;11;Comentários/Sugestões para melhorias:;;;CONCLUIDO;
+2;12;00760;Avaliação Docente UniCatolica 2026.1;218;1;91360608;Direito;52105;2;Feedback sobre os resultados da avaliação institucional;A;Excelente;CONCLUIDO;
+2;12;00760;Avaliação Docente UniCatolica 2026.1;218;1;91360608;Direito;52105;3;Coerência entre a Missão Institucional "Ser presença educativa, por meio de ações em rede de Ensino, Pesquisa e Extensão que propiciem a formação integral da comunidade e contribuam com a transformação da sociedade." e os Planos de Ensino;A;Excelente;CONCLUIDO;
+2;12;00760;Avaliação Docente UniCatolica 2026.1;218;1;91360608;Direito;52105;4;Coerência entre a Missão Institucional e os Projetos de Extensão;A;Excelente;CONCLUIDO;
+2;12;00760;Avaliação Docente UniCatolica 2026.1;218;1;91360608;Direito;52105;5;Coerência entre a Missão Institucional e atividades culturais e artísticas;A;Excelente;CONCLUIDO;
+2;12;00760;Avaliação Docente UniCatolica 2026.1;218;1;91360608;Direito;52105;6;Coerência entre a Missão Institucional e atividades de iniciação científica e tecnológica;A;Excelente;CONCLUIDO;
+2;12;00760;Avaliação Docente UniCatolica 2026.1;218;1;91360608;Direito;52105;7;Coerência entre a Missão Institucional e atividades relacionadas à espiritualidade;A;Excelente;CONCLUIDO;
+2;12;00760;Avaliação Docente UniCatolica 2026.1;218;1;91360608;Direito;52105;8;Coerência entre a Missão Institucional e iniciativas efetivas de preservação ambiental;A;Excelente;CONCLUIDO;
+2;12;00760;Avaliação Docente UniCatolica 2026.1;218;1;91360608;Direito;52105;9;Divulgação e clareza dos editais (extensão e iniciação científica);A;Excelente;CONCLUIDO;
 2;12;00760;Avaliação Docente UniCatolica 2026.1;218;1;91360756;Administração;52105;1;Efetividade das melhorias decorrentes da autoavaliação institucional;A;Excelente;CONCLUIDO;
 2;12;00760;Avaliação Docente UniCatolica 2026.1;218;1;91360756;Administração;52105;10;Apoio institucional para execução dos planos de ensino;A;Excelente;CONCLUIDO;
 2;12;00760;Avaliação Docente UniCatolica 2026.1;218;1;91360756;Administração;52105;11;Comentários/Sugestões para melhorias:;;;CONCLUIDO;
